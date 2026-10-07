@@ -4,7 +4,7 @@
     var ts    = Date.now();
 
     var body = JSON.stringify({
-      name:        'PENTEST_XSS_PROOF_' + ts,
+      name:        'HIDE_GOOGLE_ANALYTICS',
       langId:      1,
       brandId:     68,
       stringValue: value
